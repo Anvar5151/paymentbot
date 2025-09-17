@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 class Config:
-    BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN')
+    BOT_TOKEN = os.getenv('BOT_TOKEN', '8261270411:AAFLFiFb5IUGP7qOnNwTXv9be-QTeaanzvQ')
     DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://user:password@localhost/botdb')
     ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '123456789').split(',')))
     MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@your_channel')
