@@ -76,42 +76,22 @@ COURSES = {
         'name': '🌟 Mustaqil'
         'price': 297000,
         'description': '✅  5 haftalik dastur\n'
-        '✅ 21 ta video darslar\n'
-        '✅ Kunlik vazifalar\n'
-        '✅ Menyu va retseptlar\n'
-        '✅ Sport mashqlari'
+        '✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
+
         'channel_id': '@janob_targetog_kanali'
     },
     'premium': {
-        'name': '💎 Premium' 
+        'name': '💎 Premium'
         'price': 597000,
-        'description': '✅  5 haftalik dastur\n'
-        '✅ 21 ta video darslar\n'
-        '✅ Kunlik vazifalar\n'
-        '✅ Menyu va retseptlar\n'
-        '✅ Sport mashqlari\n'
-        '✅ Kurator nazorati\n'
-        '✅ Haftada 1 marta Umida Usmanovadab jonli efir'
-        '✅ Viseral massaj dasrligi\n'
-        '✅ Zuluk qo‘yish dasrligi\n'
+        'description': '✅  5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadab jonli efir✅ Viseral massaj dasrligi\n✅ Zuluk qo‘yish dasrligi\n',
 
         'channel_id': '@janob_targetog_kanali'
     },
     'vip': {
         'name': '👑 VIP',
         'price': 1497000, 
-        'description': '✅ 5 haftalik dastur\n'
-        '✅ 21 ta video darslar\n'
-        '✅ Kunlik vazifalar\n'
-        '✅ Menyu va retseptlar\n'
-        '✅ Sport mashqlari\n'
-        '✅ Kurator nazorati\n'
-        '✅ Haftada 1 marta Umida Usmanovadab jonli efir'
-        '✅ Viseral massaj dasrligi\n'
-        '✅ Zuluk qo‘yish dasrligi\n'
-        '✅ Umida Usmanovadan oflayn knsultatsiya\n'
-        '✅ Umida usmanovadan Sport mashg‘uloti\n'
-        '✅ Shaxsiy rejim',
+        'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadab jonli efir✅ Viseral massaj dasrligi\n✅ Zuluk qo‘yish dasrligi\n✅ Umida Usmanovadan oflayn knsultatsiya\n✅ Umida usmanovadan Sport mashg‘uloti\n✅ Shaxsiy rejim',
+
         'channel_id': '@janob_targetog_kanali'
     }
 }
