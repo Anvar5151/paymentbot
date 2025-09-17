@@ -76,19 +76,19 @@ COURSES = {
         'name': '🌟 Mustaqil',
         'price': 197000,
         'description': '✅ 21 kunlik dastur\n✅ Kunlik vazifalar\n✅ Ovqatlanish rejasi\n✅ Sport mashqlari',
-        'channel_id': '@mustaqil_kurs'
+        'channel_id': '@janob_targetog_kanali'
     },
     'premium': {
         'name': '💎 Premium', 
         'price': 397000,
         'description': '✅ 21 kunlik dastur\n✅ Shaxsiy konsultatsiya\n✅ WhatsApp guruh\n✅ Haftalik nazorat',
-        'channel_id': '@premium_kurs'
+        'channel_id': '@janob_targetog_kanali'
     },
     'vip': {
         'name': '👑 VIP',
         'price': 597000, 
         'description': '✅ 21 kunlik dastur\n✅ 1:1 mentor\n✅ Video qo\'ng\'iroqlar\n✅ Shaxsiy rejim',
-        'channel_id': '@vip_kurs'
+        'channel_id': '@janob_targetog_kanali'
     }
 }
 
