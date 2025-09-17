@@ -21,6 +21,15 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramAPIError
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import pytz
+from aiogram import Router
+from aiogram.types import ErrorEvent
+
+router = Router()
+
+@router.errors()
+async def error_handler(event: ErrorEvent):
+    print(f"Error: {event.exception}")
+    # yoki logga yozib qo'ying
 
 # Logging setup
 logging.basicConfig(
