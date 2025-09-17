@@ -21,15 +21,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramAPIError
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import pytz
-from aiogram import Router
-from aiogram.types import ErrorEvent
-
-router = Router()
-
-@router.errors()
-async def error_handler(event: ErrorEvent):
-    print(f"Error: {event.exception}")
-    # yoki logga yozib qo'ying
 
 # Logging setup
 logging.basicConfig(
@@ -44,12 +35,12 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 class Config:
-    BOT_TOKEN = os.getenv('BOT_TOKEN', '8261270411:AAFLFiFb5IUGP7qOnNwTXv9be-QTeaanzvQ')
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://u3iq5cgdg6i8iu:p0a421befaade36b354ef7c54ebd196a264d162be538a3b4f4e8c9d2ce3264ef4@c2fbt7u7f4htth.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d50dkobgsj63t1')
-    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620, 6431139056').split(',')))
-    MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@janob_targetog_kanali')
-    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '5614 6873 0354 0661')
-    CARD_OWNER = os.getenv('CARD_OWNER', 'Anvar Raxmadullayev')
+    BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://user:password@localhost/botdb')
+    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '123456789').split(',')))
+    MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@your_channel')
+    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '9860 1234 5678 9012')
+    CARD_OWNER = os.getenv('CARD_OWNER', 'JOHN DOE')
 
 # States
 class RegistrationStates(StatesGroup):
@@ -91,6 +82,7 @@ COURSES = {
         'channel_id': '@janob_targetog_kanali'
     }
 }
+
 REJECTION_REASONS = [
     "Noto'g'ri summa ko'rsatilgan",
     "Chek aniq emas yoki o'qib bo'lmaydi", 
@@ -586,6 +578,7 @@ async def payment_handler(callback: CallbackQuery, state: FSMContext):
         owner=Config.CARD_OWNER,
         amount=course['price']
     )
+    
     await callback.message.edit_text(text, reply_markup=get_payment_keyboard(course_key))
 
 @router.callback_query(F.data.startswith("copy_card:"))
@@ -912,37 +905,76 @@ async def admin_export(callback: CallbackQuery):
             await callback.answer("❌ Ma'lumotlar topilmadi!", show_alert=True)
             return
         
-        # Create DataFrame
-        df = pd.DataFrame(users_data)
+        # Memory-efficient CSV export instead of Excel
+        csv_data = "user_id,phone,full_name,age,region,height,weight,registration_date,course_type,amount,payment_status,submission_date\n"
         
-        # Format data
-        if 'registration_date' in df.columns:
-            df['registration_date'] = pd.to_datetime(df['registration_date']).dt.strftime('%Y-%m-%d %H:%M')
-        if 'submission_date' in df.columns:
-            df['submission_date'] = pd.to_datetime(df['submission_date']).dt.strftime('%Y-%m-%d %H:%M')
+        for user in users_data:
+            # Format dates safely
+            reg_date = user.get('registration_date', '')
+            if reg_date:
+                try:
+                    reg_date = reg_date.strftime('%Y-%m-%d %H:%M') if hasattr(reg_date, 'strftime') else str(reg_date)
+                except:
+                    reg_date = str(reg_date)
+            
+            sub_date = user.get('submission_date', '')
+            if sub_date:
+                try:
+                    sub_date = sub_date.strftime('%Y-%m-%d %H:%M') if hasattr(sub_date, 'strftime') else str(sub_date)
+                except:
+                    sub_date = str(sub_date)
+            
+            # Escape commas and quotes in text fields
+            full_name = str(user.get('full_name', '')).replace(',', ';').replace('"', "'")
+            region = str(user.get('region', '')).replace(',', ';').replace('"', "'")
+            
+            csv_data += f"{user.get('user_id', '')},{user.get('phone', '')},{full_name},{user.get('age', '')},{region},{user.get('height', '')},{user.get('weight', '')},{reg_date},{user.get('course_type', '')},{user.get('amount', '')},{user.get('status', '')},{sub_date}\n"
         
-        # Create Excel file
-        excel_buffer = BytesIO()
-        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-            df.to_excel(writer, sheet_name='Foydalanuvchilar', index=False)
-        
-        excel_buffer.seek(0)
+        # Create file in memory
+        csv_buffer = BytesIO(csv_data.encode('utf-8'))
+        csv_buffer.seek(0)
         
         # Send file
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"users_export_{timestamp}.xlsx"
+        filename = f"users_export_{timestamp}.csv"
         
         await bot.send_document(
             callback.from_user.id,
-            document=FSInputFile(excel_buffer, filename=filename),
-            caption=f"📊 Foydalanuvchilar ma'lumotlari\n📅 {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            document=FSInputFile(csv_buffer, filename=filename),
+            caption=f"📊 Foydalanuvchilar ma'lumotlari (CSV)\n📅 {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n💡 Excel'da ochish mumkin"
         )
         
-        await db.log_admin_action(callback.from_user.id, 'export_data', None, f"Exported {len(users_data)} records")
+        await db.log_admin_action(callback.from_user.id, 'export_data', None, f"Exported {len(users_data)} records as CSV")
         
     except Exception as e:
         logger.error(f"Export error: {e}")
-        await callback.answer("❌ Export qilishda xatolik!", show_alert=True)
+        # Fallback to simple text export
+        try:
+            users_data = await db.get_all_users_for_export()
+            text_export = "📊 FOYDALANUVCHILAR HISOBOTI\n\n"
+            
+            for i, user in enumerate(users_data[:50], 1):  # First 50 users only
+                text_export += f"{i}. {user.get('full_name', 'N/A')}\n"
+                text_export += f"   📱 {user.get('phone', 'N/A')}\n"
+                text_export += f"   🎂 {user.get('age', 'N/A')} yosh, {user.get('region', 'N/A')}\n"
+                text_export += f"   📏 {user.get('height', 'N/A')}sm, ⚖️ {user.get('weight', 'N/A')}kg\n"
+                if user.get('course_type'):
+                    text_export += f"   💰 {user.get('course_type', '')} - {user.get('amount', 0):,} so'm\n"
+                text_export += "   ─────────────\n"
+            
+            if len(users_data) > 50:
+                text_export += f"\n... va yana {len(users_data) - 50} ta foydalanuvchi"
+            
+            # Send as text if too long, split into chunks
+            if len(text_export) > 4000:
+                for i in range(0, len(text_export), 4000):
+                    await bot.send_message(callback.from_user.id, text_export[i:i+4000])
+            else:
+                await bot.send_message(callback.from_user.id, text_export)
+                
+        except Exception as fallback_error:
+            logger.error(f"Fallback export error: {fallback_error}")
+            await callback.answer("❌ Export qilishda xatolik! Admin bilan bog'laning.", show_alert=True)
 
 @router.callback_query(F.data == "admin:payments")
 async def admin_payments(callback: CallbackQuery):
