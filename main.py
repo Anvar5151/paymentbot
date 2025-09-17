@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 class Config:
     BOT_TOKEN = os.getenv('BOT_TOKEN', '8261270411:AAFLFiFb5IUGP7qOnNwTXv9be-QTeaanzvQ')
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://user:password@localhost/botdb')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://u3iq5cgdg6i8iu:p0a421befaade36b354ef7c54ebd196a264d162be538a3b4f4e8c9d2ce3264ef4@c2fbt7u7f4htth.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d50dkobgsj63t1')
     ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620').split(',')))
     MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@your_channel')
     PAYMENT_CARD = os.getenv('PAYMENT_CARD', '9860 1234 5678 9012')
