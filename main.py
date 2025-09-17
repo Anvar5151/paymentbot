@@ -113,7 +113,7 @@ MESSAGES = {
     'card_copied': "✅ Karta raqami nusxalandi!",
     'receipt_received': "✅ Chek qabul qilindi! Admin tekshiradi.",
     'select_course': "📚 Kurs turini tanlang:",
-    'payment_info': "💳 To'lov ma'lumotlari:\nKarta: {card}\nEgasi: {owner}\nSumma: {amount:,} so'm\n\n📋 Karta raqamini nusxalash uchun tugmani bosing\n\n💰 Pul o'tkazganingizdan so'ng chekni yuboring:"
+    # 'payment_info': "💳 To'lov ma'lumotlari:\nKarta: {card}\nEgasi: {owner}\nSumma: {amount:,} so'm\n\n📋 Karta raqamini nusxalash uchun tugmani bosing\n\n💰 Pul o'tkazganingizdan so'ng chekni yuboring:"
 }
 
 # Database class
