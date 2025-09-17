@@ -113,7 +113,7 @@ MESSAGES = {
     'card_copied': "✅ Karta raqami nusxalandi!",
     'receipt_received': "✅ Chek qabul qilindi! Admin tekshiradi.",
     'select_course': "📚 Kurs turini tanlang:",
-    # 'payment_info': "💳 To'lov ma'lumotlari:\nKarta: {card}\nEgasi: {owner}\nSumma: {amount:,} so'm\n\n📋 Karta raqamini nusxalash uchun tugmani bosing\n\n💰 Pul o'tkazganingizdan so'ng chekni yuboring:"
+    'payment_info': "💳 To'lov ma'lumotlari:\nKarta: {card}\nEgasi: {owner}\nSumma: {amount:,} so'm\n\n📋 Karta raqamini nusxalash uchun tugmani bosing\n\n💰 Pul o'tkazganingizdan so'ng chekni yuboring:"
 }
 
 # Database class
@@ -568,30 +568,16 @@ async def course_selection_handler(callback: CallbackQuery, state: FSMContext):
 async def back_to_courses_handler(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(MESSAGES['select_course'], reply_markup=get_courses_keyboard())
 
-
-MESSAGES = {
-    'payment_info': (
-        "💳 To'lov ma'lumotlari:\n"
-        "Karta: <pre>{card}</pre>\n"
-        "Egasi: {owner}\n"
-        "Miqdor: {amount} so'm"
-    )
-}
-
-
 @router.callback_query(F.data.startswith("pay:"))
 async def payment_handler(callback: CallbackQuery, state: FSMContext):
     course_key = callback.data.split(":", 1)[1]
     course = COURSES[course_key]
     
     text = MESSAGES['payment_info'].format(
-    card=Config.PAYMENT_CARD,
-    owner=Config.CARD_OWNER,
-    amount=course['price']
+        card=Config.PAYMENT_CARD,
+        owner=Config.CARD_OWNER,
+        amount=course['price']
     )
-
-    await message.answer(text, parse_mode="HTML")
-    
     await callback.message.edit_text(text, reply_markup=get_payment_keyboard(course_key))
 
 @router.callback_query(F.data.startswith("copy_card:"))
