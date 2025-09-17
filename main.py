@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 class Config:
     BOT_TOKEN = os.getenv('BOT_TOKEN', '8261270411:AAFLFiFb5IUGP7qOnNwTXv9be-QTeaanzvQ')
     DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://u3iq5cgdg6i8iu:p0a421befaade36b354ef7c54ebd196a264d162be538a3b4f4e8c9d2ce3264ef4@c2fbt7u7f4htth.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d50dkobgsj63t1')
-    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620').split(',')))
+    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620, 6431139056').split(',')))
     MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@janob_targetog_kanali')
     PAYMENT_CARD = os.getenv('PAYMENT_CARD', '5614 6873 0354 0661')
     CARD_OWNER = os.getenv('CARD_OWNER', 'Anvar Raxmadullayev')
@@ -73,21 +73,45 @@ class AdminStates(StatesGroup):
 # Course configurations
 COURSES = {
     'mustaqil': {
-        'name': '🌟 Mustaqil',
-        'price': 197000,
-        'description': '✅ 21 kunlik dastur\n✅ Kunlik vazifalar\n✅ Ovqatlanish rejasi\n✅ Sport mashqlari',
+        'name': '🌟 Mustaqil'
+        'price': 297000,
+        'description': '✅  5 haftalik dastur\n'
+        '✅ 21 ta video darslar\n'
+        '✅ Kunlik vazifalar\n'
+        '✅ Menyu va retseptlar\n'
+        '✅ Sport mashqlari'
         'channel_id': '@janob_targetog_kanali'
     },
     'premium': {
-        'name': '💎 Premium', 
-        'price': 397000,
-        'description': '✅ 21 kunlik dastur\n✅ Shaxsiy konsultatsiya\n✅ WhatsApp guruh\n✅ Haftalik nazorat',
+        'name': '💎 Premium' 
+        'price': 597000,
+        'description': '✅  5 haftalik dastur\n'
+        '✅ 21 ta video darslar\n'
+        '✅ Kunlik vazifalar\n'
+        '✅ Menyu va retseptlar\n'
+        '✅ Sport mashqlari\n'
+        '✅ Kurator nazorati\n'
+        '✅ Haftada 1 marta Umida Usmanovadab jonli efir'
+        '✅ Viseral massaj dasrligi\n'
+        '✅ Zuluk qo‘yish dasrligi\n'
+
         'channel_id': '@janob_targetog_kanali'
     },
     'vip': {
         'name': '👑 VIP',
-        'price': 597000, 
-        'description': '✅ 21 kunlik dastur\n✅ 1:1 mentor\n✅ Video qo\'ng\'iroqlar\n✅ Shaxsiy rejim',
+        'price': 1497000, 
+        'description': '✅ 5 haftalik dastur\n'
+        '✅ 21 ta video darslar\n'
+        '✅ Kunlik vazifalar\n'
+        '✅ Menyu va retseptlar\n'
+        '✅ Sport mashqlari\n'
+        '✅ Kurator nazorati\n'
+        '✅ Haftada 1 marta Umida Usmanovadab jonli efir'
+        '✅ Viseral massaj dasrligi\n'
+        '✅ Zuluk qo‘yish dasrligi\n'
+        '✅ Umida Usmanovadan oflayn knsultatsiya\n'
+        '✅ Umida usmanovadan Sport mashg‘uloti\n'
+        '✅ Shaxsiy rejim',
         'channel_id': '@janob_targetog_kanali'
     }
 }
