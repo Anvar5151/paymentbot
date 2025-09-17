@@ -589,8 +589,10 @@ async def payment_handler(callback: CallbackQuery, state: FSMContext):
     owner=Config.CARD_OWNER,
     amount=course['price']
     )
-  
-    await callback.message.edit_text(text,parse_mode="HTML",  reply_markup=get_payment_keyboard(course_key))
+
+    await message.answer(text, parse_mode="HTML")
+    
+    await callback.message.edit_text(text, reply_markup=get_payment_keyboard(course_key))
 
 @router.callback_query(F.data.startswith("copy_card:"))
 async def copy_card_handler(callback: CallbackQuery):
