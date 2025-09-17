@@ -568,16 +568,29 @@ async def course_selection_handler(callback: CallbackQuery, state: FSMContext):
 async def back_to_courses_handler(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(MESSAGES['select_course'], reply_markup=get_courses_keyboard())
 
+
+MESSAGES = {
+    'payment_info': (
+        "💳 To'lov ma'lumotlari:\n"
+        "Karta: <pre>{card}</pre>\n"
+        "Egasi: {owner}\n"
+        "Miqdor: {amount} so'm"
+    )
+}
+
+
 @router.callback_query(F.data.startswith("pay:"))
 async def payment_handler(callback: CallbackQuery, state: FSMContext):
     course_key = callback.data.split(":", 1)[1]
     course = COURSES[course_key]
     
     text = MESSAGES['payment_info'].format(
-        card=Config.PAYMENT_CARD,
-        owner=Config.CARD_OWNER,
-        amount=course['price']
+    card=Config.PAYMENT_CARD,
+    owner=Config.CARD_OWNER,
+    amount=course['price']
     )
+
+await message.answer(text, parse_mode="HTML")
     
     await callback.message.edit_text(text, reply_markup=get_payment_keyboard(course_key))
 
