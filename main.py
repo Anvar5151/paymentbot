@@ -55,10 +55,10 @@ class Config:
 class RegistrationStates(StatesGroup):
     waiting_phone = State()
     waiting_name = State()
-    waiting_age = State()
-    waiting_region = State()
-    waiting_height = State()
-    waiting_weight = State()
+    # waiting_age = State()
+    # waiting_region = State()
+    # waiting_height = State()
+    # waiting_weight = State()
 
 class PaymentStates(StatesGroup):
     course_selection = State()
@@ -108,10 +108,10 @@ UZBEK_REGIONS = [
 MESSAGES = {
     'welcome': "👋 Salom! Ozish marafoniga xush kelibsiz!\n\n📱 Iltimos, telefon raqamingizni ulashing:",
     'request_name': "✍️ Ism va familiyangizni kiriting:",
-    'request_age': "🎂 Yoshingizni kiriting (13-80):",
-    'request_region': "📍 Qaysi viloyatdansiz?",
-    'request_height': "📏 Bo'yingizni kiriting (120-220 sm):",
-    'request_weight': "⚖️ Vazningizni kiriting (30-300 kg):",
+    # 'request_age': "🎂 Yoshingizni kiriting (13-80):",
+    # 'request_region': "📍 Qaysi viloyatdansiz?",
+    # 'request_height': "📏 Bo'yingizni kiriting (120-220 sm):",
+    # 'request_weight': "⚖️ Vazningizni kiriting (30-300 kg):",
     'registration_complete': "✅ Ro'yxatdan o'tish yakunlandi!\n\nEndi kurs tarifini tanlang:",
     'payment_pending': "⏳ To'lovingiz tekshirilmoqda. Tez orada javob beramiz!",
     'payment_approved': "✅ To'lovingiz tasdiqlandi! Kursga xush kelibsiz!",
