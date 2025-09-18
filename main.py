@@ -141,10 +141,6 @@ class Database:
                     user_id BIGINT PRIMARY KEY,
                     phone VARCHAR(20) NOT NULL,
                     full_name VARCHAR(100) NOT NULL,
-                    age INTEGER NOT NULL,
-                    region VARCHAR(50) NOT NULL,
-                    height INTEGER NOT NULL,
-                    weight INTEGER NOT NULL,
                     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     is_subscribed BOOLEAN DEFAULT FALSE
                 );
@@ -180,15 +176,11 @@ class Database:
         try:
             async with self.pool.acquire() as conn:
                 await conn.execute("""
-                    INSERT INTO users (user_id, phone, full_name, age, region, height, weight)
+                    INSERT INTO users (user_id, phone, full_name)
                     VALUES ($1, $2, $3, $4, $5, $6, $7)
                     ON CONFLICT (user_id) DO UPDATE SET
                         phone = EXCLUDED.phone,
-                        full_name = EXCLUDED.full_name,
-                        age = EXCLUDED.age,
-                        region = EXCLUDED.region,
-                        height = EXCLUDED.height,
-                        weight = EXCLUDED.weight
+                        full_name = EXCLUDED.full_name
                 """, *user_data.values())
                 return True
         except Exception as e:
@@ -345,26 +337,26 @@ def validate_phone(phone: str) -> bool:
 def validate_name(name: str) -> bool:
     return bool(re.match(r'^[a-zA-ZА-Яа-я\s]{2,50}$', name.strip()))
 
-def validate_age(age_str: str) -> tuple[bool, int]:
-    try:
-        age = int(age_str)
-        return 13 <= age <= 80, age
-    except ValueError:
-        return False, 0
+# def validate_age(age_str: str) -> tuple[bool, int]:
+#     try:
+#         age = int(age_str)
+#         return 13 <= age <= 80, age
+#     except ValueError:
+#         return False, 0
 
-def validate_height(height_str: str) -> tuple[bool, int]:
-    try:
-        height = int(height_str)
-        return 120 <= height <= 220, height
-    except ValueError:
-        return False, 0
+# def validate_height(height_str: str) -> tuple[bool, int]:
+#     try:
+#         height = int(height_str)
+#         return 120 <= height <= 220, height
+#     except ValueError:
+#         return False, 0
 
-def validate_weight(weight_str: str) -> tuple[bool, int]:
-    try:
-        weight = int(weight_str)
-        return 30 <= weight <= 300, weight
-    except ValueError:
-        return False, 0
+# def validate_weight(weight_str: str) -> tuple[bool, int]:
+#     try:
+#         weight = int(weight_str)
+#         return 30 <= weight <= 300, weight
+#     except ValueError:
+#         return False, 0
 
 async def check_subscription(bot: Bot, user_id: int, channel: str) -> bool:
     try:
@@ -502,8 +494,8 @@ async def name_handler(message: Message, state: FSMContext):
         return
     
     await state.update_data(full_name=name)
-    await message.answer(MESSAGES['request_age'])
-    await state.set_state(RegistrationStates.waiting_age)
+    # await message.answer(MESSAGES['request_age'])
+    # await state.set_state(RegistrationStates.waiting_age)
 
 # @router.message(RegistrationStates.waiting_age)
 # async def age_handler(message: Message, state: FSMContext):
