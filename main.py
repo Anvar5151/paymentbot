@@ -34,7 +34,7 @@ async def error_handler(event: ErrorEvent):
     # Agar update ham kerak bo‘lsa:
     print(f"📩 Update: {event.update}")
 
-    
+
 # Logging setup
 logging.basicConfig(
     level=logging.INFO,
@@ -47,13 +47,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configuration
+# Configuration
 class Config:
-    BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN')
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://user:password@localhost/botdb')
-    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '123456789').split(',')))
-    MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@your_channel')
-    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '9860 1234 5678 9012')
-    CARD_OWNER = os.getenv('CARD_OWNER', 'JOHN DOE')
+    BOT_TOKEN = os.getenv('BOT_TOKEN', '8261270411:AAFLFiFb5IUGP7qOnNwTXv9be-QTeaanzvQ')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://u3iq5cgdg6i8iu:p0a421befaade36b354ef7c54ebd196a264d162be538a3b4f4e8c9d2ce3264ef4@c2fbt7u7f4htth.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d50dkobgsj63t1')
+    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620, 6431139056').split(',')))
+    MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@janob_targetog_kanali')
+    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '5614 6873 0354 0661')
+    CARD_OWNER = os.getenv('CARD_OWNER', 'Anvar Raxmadullayev')
 
 # States
 class RegistrationStates(StatesGroup):
