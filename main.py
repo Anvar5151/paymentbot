@@ -21,15 +21,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramAPIError
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import pytz
-from aiogram import Router
-from aiogram.types import ErrorEvent
-
-router = Router()
-
-@router.errors()
-async def error_handler(event: ErrorEvent):
-    print(f"Error: {event.exception}")
-    # yoki logga yozib qo'ying
 
 # Logging setup
 logging.basicConfig(
@@ -44,21 +35,21 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 class Config:
-    BOT_TOKEN = os.getenv('BOT_TOKEN', '8261270411:AAFLFiFb5IUGP7qOnNwTXv9be-QTeaanzvQ')
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://u3iq5cgdg6i8iu:p0a421befaade36b354ef7c54ebd196a264d162be538a3b4f4e8c9d2ce3264ef4@c2fbt7u7f4htth.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d50dkobgsj63t1')
-    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620, 6431139056').split(',')))
-    MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@janob_targetog_kanali')
-    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '5614 6873 0354 0661')
-    CARD_OWNER = os.getenv('CARD_OWNER', 'Anvar Raxmadullayev')
+    BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://user:password@localhost/botdb')
+    ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '123456789').split(',')))
+    MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '@your_channel')
+    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '9860 1234 5678 9012')
+    CARD_OWNER = os.getenv('CARD_OWNER', 'JOHN DOE')
 
 # States
 class RegistrationStates(StatesGroup):
     waiting_phone = State()
     waiting_name = State()
-    # waiting_age = State()
-    # waiting_region = State()
-    # waiting_height = State()
-    # waiting_weight = State()
+    waiting_age = State()
+    waiting_region = State()
+    waiting_height = State()
+    waiting_weight = State()
 
 class PaymentStates(StatesGroup):
     course_selection = State()
@@ -91,6 +82,7 @@ COURSES = {
         'channel_id': '@janob_targetog_kanali'
     }
 }
+
 REJECTION_REASONS = [
     "Noto'g'ri summa ko'rsatilgan",
     "Chek aniq emas yoki o'qib bo'lmaydi", 
@@ -108,10 +100,10 @@ UZBEK_REGIONS = [
 MESSAGES = {
     'welcome': "👋 Salom! Ozish marafoniga xush kelibsiz!\n\n📱 Iltimos, telefon raqamingizni ulashing:",
     'request_name': "✍️ Ism va familiyangizni kiriting:",
-    # 'request_age': "🎂 Yoshingizni kiriting (13-80):",
-    # 'request_region': "📍 Qaysi viloyatdansiz?",
-    # 'request_height': "📏 Bo'yingizni kiriting (120-220 sm):",
-    # 'request_weight': "⚖️ Vazningizni kiriting (30-300 kg):",
+    'request_age': "🎂 Yoshingizni kiriting (13-80):",
+    'request_region': "📍 Qaysi viloyatdansiz?",
+    'request_height': "📏 Bo'yingizni kiriting (120-220 sm):",
+    'request_weight': "⚖️ Vazningizni kiriting (30-300 kg):",
     'registration_complete': "✅ Ro'yxatdan o'tish yakunlandi!\n\nEndi kurs tarifini tanlang:",
     'payment_pending': "⏳ To'lovingiz tekshirilmoqda. Tez orada javob beramiz!",
     'payment_approved': "✅ To'lovingiz tasdiqlandi! Kursga xush kelibsiz!",
@@ -131,8 +123,21 @@ class Database:
         self.pool = None
 
     async def init_pool(self):
-        self.pool = await asyncpg.create_pool(self.url, min_size=2, max_size=10)
-        await self.create_tables()
+        try:
+            self.pool = await asyncpg.create_pool(
+                self.url, 
+                min_size=1, 
+                max_size=5,  # Heroku uchun past limit
+                command_timeout=60,
+                server_settings={
+                    'jit': 'off'  # Performance optimization
+                }
+            )
+            await self.create_tables()
+            logger.info("Database pool initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database pool: {e}")
+            raise
 
     async def create_tables(self):
         async with self.pool.acquire() as conn:
@@ -141,6 +146,10 @@ class Database:
                     user_id BIGINT PRIMARY KEY,
                     phone VARCHAR(20) NOT NULL,
                     full_name VARCHAR(100) NOT NULL,
+                    age INTEGER NOT NULL,
+                    region VARCHAR(50) NOT NULL,
+                    height INTEGER NOT NULL,
+                    weight INTEGER NOT NULL,
                     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     is_subscribed BOOLEAN DEFAULT FALSE
                 );
@@ -176,11 +185,15 @@ class Database:
         try:
             async with self.pool.acquire() as conn:
                 await conn.execute("""
-                    INSERT INTO users (user_id, phone, full_name)
+                    INSERT INTO users (user_id, phone, full_name, age, region, height, weight)
                     VALUES ($1, $2, $3, $4, $5, $6, $7)
                     ON CONFLICT (user_id) DO UPDATE SET
                         phone = EXCLUDED.phone,
-                        full_name = EXCLUDED.full_name
+                        full_name = EXCLUDED.full_name,
+                        age = EXCLUDED.age,
+                        region = EXCLUDED.region,
+                        height = EXCLUDED.height,
+                        weight = EXCLUDED.weight
                 """, *user_data.values())
                 return True
         except Exception as e:
@@ -337,26 +350,26 @@ def validate_phone(phone: str) -> bool:
 def validate_name(name: str) -> bool:
     return bool(re.match(r'^[a-zA-ZА-Яа-я\s]{2,50}$', name.strip()))
 
-# def validate_age(age_str: str) -> tuple[bool, int]:
-#     try:
-#         age = int(age_str)
-#         return 13 <= age <= 80, age
-#     except ValueError:
-#         return False, 0
+def validate_age(age_str: str) -> tuple[bool, int]:
+    try:
+        age = int(age_str)
+        return 13 <= age <= 80, age
+    except ValueError:
+        return False, 0
 
-# def validate_height(height_str: str) -> tuple[bool, int]:
-#     try:
-#         height = int(height_str)
-#         return 120 <= height <= 220, height
-#     except ValueError:
-#         return False, 0
+def validate_height(height_str: str) -> tuple[bool, int]:
+    try:
+        height = int(height_str)
+        return 120 <= height <= 220, height
+    except ValueError:
+        return False, 0
 
-# def validate_weight(weight_str: str) -> tuple[bool, int]:
-#     try:
-#         weight = int(weight_str)
-#         return 30 <= weight <= 300, weight
-#     except ValueError:
-#         return False, 0
+def validate_weight(weight_str: str) -> tuple[bool, int]:
+    try:
+        weight = int(weight_str)
+        return 30 <= weight <= 300, weight
+    except ValueError:
+        return False, 0
 
 async def check_subscription(bot: Bot, user_id: int, channel: str) -> bool:
     try:
@@ -420,6 +433,18 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 router = Router()
 db = Database(Config.DATABASE_URL)
+
+# Error handler
+@router.errors()
+async def error_handler(event: ErrorEvent):
+    logger.error(f"Error: {event.exception}")
+    return True
+
+# Error handler
+@router.errors()
+async def error_handler(event: ErrorEvent):
+    logger.error(f"Error: {event.exception}")
+    return True
 
 # Handlers
 @router.message(Command("start"))
@@ -494,50 +519,50 @@ async def name_handler(message: Message, state: FSMContext):
         return
     
     await state.update_data(full_name=name)
-    # await message.answer(MESSAGES['request_age'])
-    # await state.set_state(RegistrationStates.waiting_age)
+    await message.answer(MESSAGES['request_age'])
+    await state.set_state(RegistrationStates.waiting_age)
 
-# @router.message(RegistrationStates.waiting_age)
-# async def age_handler(message: Message, state: FSMContext):
-#     is_valid, age = validate_age(message.text)
+@router.message(RegistrationStates.waiting_age)
+async def age_handler(message: Message, state: FSMContext):
+    is_valid, age = validate_age(message.text)
     
-#     if not is_valid:
-#         await message.answer("❗️ Yosh 13 dan 80 gacha bo'lishi kerak!")
-#         return
+    if not is_valid:
+        await message.answer("❗️ Yosh 13 dan 80 gacha bo'lishi kerak!")
+        return
     
-#     await state.update_data(age=age)
-#     await message.answer(MESSAGES['request_region'], reply_markup=get_regions_keyboard())
-#     await state.set_state(RegistrationStates.waiting_region)
+    await state.update_data(age=age)
+    await message.answer(MESSAGES['request_region'], reply_markup=get_regions_keyboard())
+    await state.set_state(RegistrationStates.waiting_region)
 
-# @router.callback_query(RegistrationStates.waiting_region, F.data.startswith("region:"))
-# async def region_handler(callback: CallbackQuery, state: FSMContext):
-#     region = callback.data.split(":", 1)[1]
+@router.callback_query(RegistrationStates.waiting_region, F.data.startswith("region:"))
+async def region_handler(callback: CallbackQuery, state: FSMContext):
+    region = callback.data.split(":", 1)[1]
     
-#     await state.update_data(region=region)
-#     await callback.message.edit_text(MESSAGES['request_height'])
-#     await state.set_state(RegistrationStates.waiting_height)
+    await state.update_data(region=region)
+    await callback.message.edit_text(MESSAGES['request_height'])
+    await state.set_state(RegistrationStates.waiting_height)
 
-# @router.message(RegistrationStates.waiting_height)
-# async def height_handler(message: Message, state: FSMContext):
-#     is_valid, height = validate_height(message.text)
+@router.message(RegistrationStates.waiting_height)
+async def height_handler(message: Message, state: FSMContext):
+    is_valid, height = validate_height(message.text)
     
-#     if not is_valid:
-#         await message.answer("❗️ Bo'y 120 dan 220 sm gacha bo'lishi kerak!")
-#         return
+    if not is_valid:
+        await message.answer("❗️ Bo'y 120 dan 220 sm gacha bo'lishi kerak!")
+        return
     
-#     await state.update_data(height=height)
-#     await message.answer(MESSAGES['request_weight'])
-#     await state.set_state(RegistrationStates.waiting_weight)
+    await state.update_data(height=height)
+    await message.answer(MESSAGES['request_weight'])
+    await state.set_state(RegistrationStates.waiting_weight)
 
-# @router.message(RegistrationStates.waiting_weight)
-# async def weight_handler(message: Message, state: FSMContext):
-#     is_valid, weight = validate_weight(message.text)
+@router.message(RegistrationStates.waiting_weight)
+async def weight_handler(message: Message, state: FSMContext):
+    is_valid, weight = validate_weight(message.text)
     
-#     if not is_valid:
-#         await message.answer("❗️ Vazn 30 dan 300 kg gacha bo'lishi kerak!")
-#         return
+    if not is_valid:
+        await message.answer("❗️ Vazn 30 dan 300 kg gacha bo'lishi kerak!")
+        return
     
-#     await state.update_data(weight=weight)
+    await state.update_data(weight=weight)
     
     # Save user to database
     data = await state.get_data()
@@ -578,6 +603,7 @@ async def payment_handler(callback: CallbackQuery, state: FSMContext):
         owner=Config.CARD_OWNER,
         amount=course['price']
     )
+    
     await callback.message.edit_text(text, reply_markup=get_payment_keyboard(course_key))
 
 @router.callback_query(F.data.startswith("copy_card:"))
@@ -904,37 +930,76 @@ async def admin_export(callback: CallbackQuery):
             await callback.answer("❌ Ma'lumotlar topilmadi!", show_alert=True)
             return
         
-        # Create DataFrame
-        df = pd.DataFrame(users_data)
+        # Memory-efficient CSV export instead of Excel
+        csv_data = "user_id,phone,full_name,age,region,height,weight,registration_date,course_type,amount,payment_status,submission_date\n"
         
-        # Format data
-        if 'registration_date' in df.columns:
-            df['registration_date'] = pd.to_datetime(df['registration_date']).dt.strftime('%Y-%m-%d %H:%M')
-        if 'submission_date' in df.columns:
-            df['submission_date'] = pd.to_datetime(df['submission_date']).dt.strftime('%Y-%m-%d %H:%M')
+        for user in users_data:
+            # Format dates safely
+            reg_date = user.get('registration_date', '')
+            if reg_date:
+                try:
+                    reg_date = reg_date.strftime('%Y-%m-%d %H:%M') if hasattr(reg_date, 'strftime') else str(reg_date)
+                except:
+                    reg_date = str(reg_date)
+            
+            sub_date = user.get('submission_date', '')
+            if sub_date:
+                try:
+                    sub_date = sub_date.strftime('%Y-%m-%d %H:%M') if hasattr(sub_date, 'strftime') else str(sub_date)
+                except:
+                    sub_date = str(sub_date)
+            
+            # Escape commas and quotes in text fields
+            full_name = str(user.get('full_name', '')).replace(',', ';').replace('"', "'")
+            region = str(user.get('region', '')).replace(',', ';').replace('"', "'")
+            
+            csv_data += f"{user.get('user_id', '')},{user.get('phone', '')},{full_name},{user.get('age', '')},{region},{user.get('height', '')},{user.get('weight', '')},{reg_date},{user.get('course_type', '')},{user.get('amount', '')},{user.get('status', '')},{sub_date}\n"
         
-        # Create Excel file
-        excel_buffer = BytesIO()
-        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-            df.to_excel(writer, sheet_name='Foydalanuvchilar', index=False)
-        
-        excel_buffer.seek(0)
+        # Create file in memory
+        csv_buffer = BytesIO(csv_data.encode('utf-8'))
+        csv_buffer.seek(0)
         
         # Send file
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"users_export_{timestamp}.xlsx"
+        filename = f"users_export_{timestamp}.csv"
         
         await bot.send_document(
             callback.from_user.id,
-            document=FSInputFile(excel_buffer, filename=filename),
-            caption=f"📊 Foydalanuvchilar ma'lumotlari\n📅 {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            document=FSInputFile(csv_buffer, filename=filename),
+            caption=f"📊 Foydalanuvchilar ma'lumotlari (CSV)\n📅 {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n💡 Excel'da ochish mumkin"
         )
         
-        await db.log_admin_action(callback.from_user.id, 'export_data', None, f"Exported {len(users_data)} records")
+        await db.log_admin_action(callback.from_user.id, 'export_data', None, f"Exported {len(users_data)} records as CSV")
         
     except Exception as e:
         logger.error(f"Export error: {e}")
-        await callback.answer("❌ Export qilishda xatolik!", show_alert=True)
+        # Fallback to simple text export
+        try:
+            users_data = await db.get_all_users_for_export()
+            text_export = "📊 FOYDALANUVCHILAR HISOBOTI\n\n"
+            
+            for i, user in enumerate(users_data[:50], 1):  # First 50 users only
+                text_export += f"{i}. {user.get('full_name', 'N/A')}\n"
+                text_export += f"   📱 {user.get('phone', 'N/A')}\n"
+                text_export += f"   🎂 {user.get('age', 'N/A')} yosh, {user.get('region', 'N/A')}\n"
+                text_export += f"   📏 {user.get('height', 'N/A')}sm, ⚖️ {user.get('weight', 'N/A')}kg\n"
+                if user.get('course_type'):
+                    text_export += f"   💰 {user.get('course_type', '')} - {user.get('amount', 0):,} so'm\n"
+                text_export += "   ─────────────\n"
+            
+            if len(users_data) > 50:
+                text_export += f"\n... va yana {len(users_data) - 50} ta foydalanuvchi"
+            
+            # Send as text if too long, split into chunks
+            if len(text_export) > 4000:
+                for i in range(0, len(text_export), 4000):
+                    await bot.send_message(callback.from_user.id, text_export[i:i+4000])
+            else:
+                await bot.send_message(callback.from_user.id, text_export)
+                
+        except Exception as fallback_error:
+            logger.error(f"Fallback export error: {fallback_error}")
+            await callback.answer("❌ Export qilishda xatolik! Admin bilan bog'laning.", show_alert=True)
 
 @router.callback_query(F.data == "admin:payments")
 async def admin_payments(callback: CallbackQuery):
@@ -987,25 +1052,24 @@ async def restart_handler(callback: CallbackQuery, state: FSMContext):
 
 # Main function
 async def main():
-    # Initialize database
-    await db.init_pool()
-    
-    # Register router
-    dp.include_router(router)
-    
-    # Error handling middleware
-    @dp.error()
-    async def error_handler(event, data):
-        logger.error(f"Update error: {event.exception}")
-        return True
-    
-    # Start polling
     try:
+        # Initialize database
+        await db.init_pool()
+        
+        # Register router
+        dp.include_router(router)
+        
+        # Start polling
         logger.info("Bot started successfully!")
         await dp.start_polling(bot, skip_updates=True)
+        
     except Exception as e:
-        logger.error(f"Bot error: {e}")
+        logger.error(f"Bot startup error: {e}")
+        raise
     finally:
+        # Cleanup
+        if db.pool:
+            await db.pool.close()
         await bot.session.close()
 
 if __name__ == "__main__":
