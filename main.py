@@ -60,10 +60,6 @@ class Config:
 class RegistrationStates(StatesGroup):
     waiting_phone = State()
     waiting_name = State()
-    waiting_age = State()
-    waiting_region = State()
-    waiting_height = State()
-    waiting_weight = State()
 
 class PaymentStates(StatesGroup):
     course_selection = State()
@@ -104,20 +100,11 @@ REJECTION_REASONS = [
     "Chek soxta yoki tahrirlangan"
 ]
 
-UZBEK_REGIONS = [
-    "Toshkent shahri", "Toshkent viloyati", "Andijon", "Buxoro", 
-    "Farg'ona", "Jizzax", "Xorazm", "Namangan", "Navoiy", 
-    "Qashqadaryo", "Qoraqalpog'iston", "Samarqand", "Sirdaryo", "Surxondaryo"
-]
 
 # Messages
 MESSAGES = {
     'welcome': "👋 Salom! Ozish marafoniga xush kelibsiz!\n\n📱 Iltimos, telefon raqamingizni ulashing:",
     'request_name': "✍️ Ism va familiyangizni kiriting:",
-    'request_age': "🎂 Yoshingizni kiriting (13-80):",
-    'request_region': "📍 Qaysi viloyatdansiz?",
-    'request_height': "📏 Bo'yingizni kiriting (120-220 sm):",
-    'request_weight': "⚖️ Vazningizni kiriting (30-300 kg):",
     'registration_complete': "✅ Ro'yxatdan o'tish yakunlandi!\n\nEndi kurs tarifini tanlang:",
     'payment_pending': "⏳ To'lovingiz tekshirilmoqda. Tez orada javob beramiz!",
     'payment_approved': "✅ To'lovingiz tasdiqlandi! Kursga xush kelibsiz!",
@@ -160,10 +147,6 @@ class Database:
                     user_id BIGINT PRIMARY KEY,
                     phone VARCHAR(20) NOT NULL,
                     full_name VARCHAR(100) NOT NULL,
-                    age INTEGER NOT NULL,
-                    region VARCHAR(50) NOT NULL,
-                    height INTEGER NOT NULL,
-                    weight INTEGER NOT NULL,
                     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     is_subscribed BOOLEAN DEFAULT FALSE
                 );
@@ -199,15 +182,11 @@ class Database:
         try:
             async with self.pool.acquire() as conn:
                 await conn.execute("""
-                    INSERT INTO users (user_id, phone, full_name, age, region, height, weight)
+                    INSERT INTO users (user_id, phone, full_name)
                     VALUES ($1, $2, $3, $4, $5, $6, $7)
                     ON CONFLICT (user_id) DO UPDATE SET
                         phone = EXCLUDED.phone,
-                        full_name = EXCLUDED.full_name,
-                        age = EXCLUDED.age,
-                        region = EXCLUDED.region,
-                        height = EXCLUDED.height,
-                        weight = EXCLUDED.weight
+                        full_name = EXCLUDED.full_name
                 """, *user_data.values())
                 return True
         except Exception as e:
@@ -364,26 +343,26 @@ def validate_phone(phone: str) -> bool:
 def validate_name(name: str) -> bool:
     return bool(re.match(r'^[a-zA-ZА-Яа-я\s]{2,50}$', name.strip()))
 
-def validate_age(age_str: str) -> tuple[bool, int]:
-    try:
-        age = int(age_str)
-        return 13 <= age <= 80, age
-    except ValueError:
-        return False, 0
+# def validate_age(age_str: str) -> tuple[bool, int]:
+#     try:
+#         age = int(age_str)
+#         return 13 <= age <= 80, age
+#     except ValueError:
+#         return False, 0
 
-def validate_height(height_str: str) -> tuple[bool, int]:
-    try:
-        height = int(height_str)
-        return 120 <= height <= 220, height
-    except ValueError:
-        return False, 0
+# def validate_height(height_str: str) -> tuple[bool, int]:
+#     try:
+#         height = int(height_str)
+#         return 120 <= height <= 220, height
+#     except ValueError:
+#         return False, 0
 
-def validate_weight(weight_str: str) -> tuple[bool, int]:
-    try:
-        weight = int(weight_str)
-        return 30 <= weight <= 300, weight
-    except ValueError:
-        return False, 0
+# def validate_weight(weight_str: str) -> tuple[bool, int]:
+#     try:
+#         weight = int(weight_str)
+#         return 30 <= weight <= 300, weight
+#     except ValueError:
+#         return False, 0
 
 async def check_subscription(bot: Bot, user_id: int, channel: str) -> bool:
     try:
@@ -533,50 +512,50 @@ async def name_handler(message: Message, state: FSMContext):
         return
     
     await state.update_data(full_name=name)
-    await message.answer(MESSAGES['request_age'])
-    await state.set_state(RegistrationStates.waiting_age)
+#     await message.answer(MESSAGES['request_age'])
+#     await state.set_state(RegistrationStates.waiting_age)
 
-@router.message(RegistrationStates.waiting_age)
-async def age_handler(message: Message, state: FSMContext):
-    is_valid, age = validate_age(message.text)
+# @router.message(RegistrationStates.waiting_age)
+# async def age_handler(message: Message, state: FSMContext):
+#     is_valid, age = validate_age(message.text)
     
-    if not is_valid:
-        await message.answer("❗️ Yosh 13 dan 80 gacha bo'lishi kerak!")
-        return
+#     if not is_valid:
+#         await message.answer("❗️ Yosh 13 dan 80 gacha bo'lishi kerak!")
+#         return
     
-    await state.update_data(age=age)
-    await message.answer(MESSAGES['request_region'], reply_markup=get_regions_keyboard())
-    await state.set_state(RegistrationStates.waiting_region)
+#     await state.update_data(age=age)
+#     await message.answer(MESSAGES['request_region'], reply_markup=get_regions_keyboard())
+#     await state.set_state(RegistrationStates.waiting_region)
 
-@router.callback_query(RegistrationStates.waiting_region, F.data.startswith("region:"))
-async def region_handler(callback: CallbackQuery, state: FSMContext):
-    region = callback.data.split(":", 1)[1]
+# @router.callback_query(RegistrationStates.waiting_region, F.data.startswith("region:"))
+# async def region_handler(callback: CallbackQuery, state: FSMContext):
+#     region = callback.data.split(":", 1)[1]
     
-    await state.update_data(region=region)
-    await callback.message.edit_text(MESSAGES['request_height'])
-    await state.set_state(RegistrationStates.waiting_height)
+#     await state.update_data(region=region)
+#     await callback.message.edit_text(MESSAGES['request_height'])
+#     await state.set_state(RegistrationStates.waiting_height)
 
-@router.message(RegistrationStates.waiting_height)
-async def height_handler(message: Message, state: FSMContext):
-    is_valid, height = validate_height(message.text)
+# @router.message(RegistrationStates.waiting_height)
+# async def height_handler(message: Message, state: FSMContext):
+#     is_valid, height = validate_height(message.text)
     
-    if not is_valid:
-        await message.answer("❗️ Bo'y 120 dan 220 sm gacha bo'lishi kerak!")
-        return
+#     if not is_valid:
+#         await message.answer("❗️ Bo'y 120 dan 220 sm gacha bo'lishi kerak!")
+#         return
     
-    await state.update_data(height=height)
-    await message.answer(MESSAGES['request_weight'])
-    await state.set_state(RegistrationStates.waiting_weight)
+#     await state.update_data(height=height)
+#     await message.answer(MESSAGES['request_weight'])
+#     await state.set_state(RegistrationStates.waiting_weight)
 
-@router.message(RegistrationStates.waiting_weight)
-async def weight_handler(message: Message, state: FSMContext):
-    is_valid, weight = validate_weight(message.text)
+# @router.message(RegistrationStates.waiting_weight)
+# async def weight_handler(message: Message, state: FSMContext):
+#     is_valid, weight = validate_weight(message.text)
     
-    if not is_valid:
-        await message.answer("❗️ Vazn 30 dan 300 kg gacha bo'lishi kerak!")
-        return
+#     if not is_valid:
+#         await message.answer("❗️ Vazn 30 dan 300 kg gacha bo'lishi kerak!")
+#         return
     
-    await state.update_data(weight=weight)
+#     await state.update_data(weight=weight)
     
     # Save user to database
     data = await state.get_data()
