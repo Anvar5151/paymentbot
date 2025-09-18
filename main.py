@@ -505,47 +505,47 @@ async def name_handler(message: Message, state: FSMContext):
     await message.answer(MESSAGES['request_age'])
     await state.set_state(RegistrationStates.waiting_age)
 
-@router.message(RegistrationStates.waiting_age)
-async def age_handler(message: Message, state: FSMContext):
-    is_valid, age = validate_age(message.text)
+# @router.message(RegistrationStates.waiting_age)
+# async def age_handler(message: Message, state: FSMContext):
+#     is_valid, age = validate_age(message.text)
     
-    if not is_valid:
-        await message.answer("❗️ Yosh 13 dan 80 gacha bo'lishi kerak!")
-        return
+#     if not is_valid:
+#         await message.answer("❗️ Yosh 13 dan 80 gacha bo'lishi kerak!")
+#         return
     
-    await state.update_data(age=age)
-    await message.answer(MESSAGES['request_region'], reply_markup=get_regions_keyboard())
-    await state.set_state(RegistrationStates.waiting_region)
+#     await state.update_data(age=age)
+#     await message.answer(MESSAGES['request_region'], reply_markup=get_regions_keyboard())
+#     await state.set_state(RegistrationStates.waiting_region)
 
-@router.callback_query(RegistrationStates.waiting_region, F.data.startswith("region:"))
-async def region_handler(callback: CallbackQuery, state: FSMContext):
-    region = callback.data.split(":", 1)[1]
+# @router.callback_query(RegistrationStates.waiting_region, F.data.startswith("region:"))
+# async def region_handler(callback: CallbackQuery, state: FSMContext):
+#     region = callback.data.split(":", 1)[1]
     
-    await state.update_data(region=region)
-    await callback.message.edit_text(MESSAGES['request_height'])
-    await state.set_state(RegistrationStates.waiting_height)
+#     await state.update_data(region=region)
+#     await callback.message.edit_text(MESSAGES['request_height'])
+#     await state.set_state(RegistrationStates.waiting_height)
 
-@router.message(RegistrationStates.waiting_height)
-async def height_handler(message: Message, state: FSMContext):
-    is_valid, height = validate_height(message.text)
+# @router.message(RegistrationStates.waiting_height)
+# async def height_handler(message: Message, state: FSMContext):
+#     is_valid, height = validate_height(message.text)
     
-    if not is_valid:
-        await message.answer("❗️ Bo'y 120 dan 220 sm gacha bo'lishi kerak!")
-        return
+#     if not is_valid:
+#         await message.answer("❗️ Bo'y 120 dan 220 sm gacha bo'lishi kerak!")
+#         return
     
-    await state.update_data(height=height)
-    await message.answer(MESSAGES['request_weight'])
-    await state.set_state(RegistrationStates.waiting_weight)
+#     await state.update_data(height=height)
+#     await message.answer(MESSAGES['request_weight'])
+#     await state.set_state(RegistrationStates.waiting_weight)
 
-@router.message(RegistrationStates.waiting_weight)
-async def weight_handler(message: Message, state: FSMContext):
-    is_valid, weight = validate_weight(message.text)
+# @router.message(RegistrationStates.waiting_weight)
+# async def weight_handler(message: Message, state: FSMContext):
+#     is_valid, weight = validate_weight(message.text)
     
-    if not is_valid:
-        await message.answer("❗️ Vazn 30 dan 300 kg gacha bo'lishi kerak!")
-        return
+#     if not is_valid:
+#         await message.answer("❗️ Vazn 30 dan 300 kg gacha bo'lishi kerak!")
+#         return
     
-    await state.update_data(weight=weight)
+#     await state.update_data(weight=weight)
     
     # Save user to database
     data = await state.get_data()
