@@ -21,7 +21,14 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramAPIError
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import pytz
+from aiogram.types import ErrorEvent
 
+@router.error()
+async def error_handler(event: ErrorEvent):
+    # Xatoni log qilish
+    print(f"❌ Error: {event.exception}")
+    # Agar update ham kerak bo‘lsa:
+    print(f"📩 Update: {event.update}")
 # Logging setup
 logging.basicConfig(
     level=logging.INFO,
