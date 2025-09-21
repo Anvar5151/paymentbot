@@ -692,7 +692,7 @@ async def approve_payment(callback: CallbackQuery):
         return
     
     if await db.update_payment_status(payment_id, 'approved', callback.from_user.id):
-        # Generate invite link
+       
         # course = COURSES[payment['course_type']]
         # try:
         #     invite_link = await bot.create_chat_invite_link(
@@ -702,22 +702,14 @@ async def approve_payment(callback: CallbackQuery):
         #         name=f"User_{payment['user_id']}"
         #     )
         # Generate invite link 
-            course = COURSES[payment['course_type']]
-            try:
-                invite_link = await bot.create_chat_invite_link(
-                    chat_id=course['channel_id'],
-                    expire_date=datetime.now() + timedelta(hours=24),
-                    member_limit=1,
-                    name=f"User_{payment['user_id']}"
-                )
-                
-                # Send approval message to user
-                approval_text = f"{MESSAGES['payment_approved']}\n\n"
-                approval_text += f"🎯 Kurs: {course['name']}\n"
-                approval_text += f"🔗 Kanalga kirish: {invite_link.invite_link}\n\n"
-                approval_text += f"⚠️ Havola 24 soat amal qiladi!"
-                
-                await bot.send_message(payment['user_id'], approval_text)
+        course = COURSES[payment['course_type']]
+        try:
+            invite_link = await bot.create_chat_invite_link(
+                chat_id=course['channel_id'],
+                expire_date=datetime.now() + timedelta(hours=24),
+                member_limit=1,
+                name=f"User_{payment['user_id']}"
+            )
             
             # Send approval message to user
             approval_text = f"{MESSAGES['payment_approved']}\n\n"
@@ -726,6 +718,14 @@ async def approve_payment(callback: CallbackQuery):
             approval_text += f"⚠️ Havola 24 soat amal qiladi!"
             
             await bot.send_message(payment['user_id'], approval_text)
+            
+            # Send approval message to user
+            # approval_text = f"{MESSAGES['payment_approved']}\n\n"
+            # approval_text += f"🎯 Kurs: {course['name']}\n"
+            # approval_text += f"🔗 Kanalga kirish: {invite_link.invite_link}\n\n"
+            # approval_text += f"⚠️ Havola 24 soat amal qiladi!"
+            
+            # await bot.send_message(payment['user_id'], approval_text)
             
             # Update callback message
             await callback.message.edit_caption(
