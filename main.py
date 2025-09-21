@@ -71,25 +71,47 @@ class AdminStates(StatesGroup):
     waiting_broadcast_message = State()
     waiting_user_id = State()
 
+# # Course configurations
+# COURSES = {
+#     'mustaqil': {
+#         'name': '🌟 Mustaqil',
+#         'price': 297000,
+#         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
+#         'channel_id': 'https://t.me/+Vyu76TM7HC4xODEy'
+#     },
+#     'premium': {
+#         'name': '💎 Premium',
+#         'price': 597000,
+#         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi',
+#         'channel_id': '@janob_targetog_kanali'
+#     },
+#     'vip': {
+#         'name': '👑 VIP',
+#         'price': 1497000, 
+#         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi\n✅ Umida Usmanovadan oflayn konsultatsiya\n✅ Umida Usmanovadan sport mashg\'uloti\n✅ Shaxsiy rejim',
+#         'channel_id': '@janob_targetog_kanali'
+#     }
+# }
+
 # Course configurations
 COURSES = {
     'mustaqil': {
         'name': '🌟 Mustaqil',
         'price': 297000,
         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
-        'channel_id': 'https://t.me/+Vyu76TM7HC4xODEy'
+        'channel_id': -1003007239414  # faqat raqamli ID
     },
     'premium': {
         'name': '💎 Premium',
         'price': 597000,
         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi',
-        'channel_id': '@janob_targetog_kanali'
+        'channel_id': -1005555666677
     },
     'vip': {
         'name': '👑 VIP',
-        'price': 1497000, 
+        'price': 1497000,
         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi\n✅ Umida Usmanovadan oflayn konsultatsiya\n✅ Umida Usmanovadan sport mashg\'uloti\n✅ Shaxsiy rejim',
-        'channel_id': '@janob_targetog_kanali'
+        'channel_id': -1008888999900
     }
 }
 
@@ -671,14 +693,31 @@ async def approve_payment(callback: CallbackQuery):
     
     if await db.update_payment_status(payment_id, 'approved', callback.from_user.id):
         # Generate invite link
-        course = COURSES[payment['course_type']]
-        try:
-            invite_link = await bot.create_chat_invite_link(
-                course['channel_id'],
-                expire_date=datetime.now() + timedelta(hours=24),
-                member_limit=1,
-                name=f"User_{payment['user_id']}"
-            )
+        # course = COURSES[payment['course_type']]
+        # try:
+        #     invite_link = await bot.create_chat_invite_link(
+        #         course['channel_id'],
+        #         expire_date=datetime.now() + timedelta(hours=24),
+        #         member_limit=1,
+        #         name=f"User_{payment['user_id']}"
+        #     )
+        # Generate invite link 
+            course = COURSES[payment['course_type']]
+            try:
+                invite_link = await bot.create_chat_invite_link(
+                    chat_id=course['channel_id'],
+                    expire_date=datetime.now() + timedelta(hours=24),
+                    member_limit=1,
+                    name=f"User_{payment['user_id']}"
+                )
+                
+                # Send approval message to user
+                approval_text = f"{MESSAGES['payment_approved']}\n\n"
+                approval_text += f"🎯 Kurs: {course['name']}\n"
+                approval_text += f"🔗 Kanalga kirish: {invite_link.invite_link}\n\n"
+                approval_text += f"⚠️ Havola 24 soat amal qiladi!"
+                
+                await bot.send_message(payment['user_id'], approval_text)
             
             # Send approval message to user
             approval_text = f"{MESSAGES['payment_approved']}\n\n"
