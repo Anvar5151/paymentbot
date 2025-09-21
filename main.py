@@ -364,19 +364,19 @@ def validate_name(name: str) -> bool:
 #     except ValueError:
 #         return False, 0
 
-async def check_subscription(bot: Bot, user_id: int, channel: str) -> bool:
-    try:
-        member = await bot.get_chat_member(channel, user_id)
-        return member.status in ['member', 'administrator', 'creator']
-    except TelegramAPIError:
-        return False
+# async def check_subscription(bot: Bot, user_id: int, channel: str) -> bool:
+#     try:
+#         member = await bot.get_chat_member(channel, user_id)
+#         return member.status in ['member', 'administrator', 'creator']
+#     except TelegramAPIError:
+#         return False
 
-def get_regions_keyboard():
-    builder = InlineKeyboardBuilder()
-    for region in UZBEK_REGIONS:
-        builder.button(text=region, callback_data=f"region:{region}")
-    builder.adjust(2)
-    return builder.as_markup()
+# def get_regions_keyboard():
+#     builder = InlineKeyboardBuilder()
+#     for region in UZBEK_REGIONS:
+#         builder.button(text=region, callback_data=f"region:{region}")
+#     builder.adjust(2)
+#     return builder.as_markup()
 
 def get_courses_keyboard():
     builder = InlineKeyboardBuilder()
@@ -446,13 +446,13 @@ async def start_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     
     # Check subscription
-    if not await check_subscription(bot, user_id, Config.MANDATORY_CHANNEL):
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📢 Kanalga obuna bo'lish", url=f"https://t.me/{Config.MANDATORY_CHANNEL[1:]}")],
-            [InlineKeyboardButton(text="✅ Obunani tekshirish", callback_data="check_subscription")]
-        ])
-        await message.answer(MESSAGES['subscription_required'], reply_markup=keyboard)
-        return
+    # if not await check_subscription(bot, user_id, Config.MANDATORY_CHANNEL):
+    #     keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    #         [InlineKeyboardButton(text="📢 Kanalga obuna bo'lish", url=f"https://t.me/{Config.MANDATORY_CHANNEL[1:]}")],
+    #         [InlineKeyboardButton(text="✅ Obunani tekshirish", callback_data="check_subscription")]
+    #     ])
+    #     await message.answer(MESSAGES['subscription_required'], reply_markup=keyboard)
+    #     return
 
     # Check if user exists
     user = await db.get_user(user_id)
@@ -468,26 +468,48 @@ async def start_handler(message: Message, state: FSMContext):
         await message.answer(MESSAGES['welcome'], reply_markup=keyboard)
         await state.set_state(RegistrationStates.waiting_phone)
 
+# @router.callback_query(F.data == "check_subscription")
+# async def check_subscription_callback(callback: CallbackQuery, state: FSMContext):
+#     user_id = callback.from_user.id
+    
+#     if await check_subscription(bot, user_id, Config.MANDATORY_CHANNEL):
+#         await callback.message.delete()
+#         user = await db.get_user(user_id)
+#         if user:
+#             await callback.message.answer(MESSAGES['registration_complete'], reply_markup=get_courses_keyboard())
+#             await state.set_state(PaymentStates.course_selection)
+#         else:
+#             keyboard = ReplyKeyboardMarkup(
+#                 keyboard=[[KeyboardButton(text="📱 Telefon raqamni ulashish", request_contact=True)]],
+#                 resize_keyboard=True,
+#                 one_time_keyboard=True
+#             )
+#             await callback.message.answer(MESSAGES['welcome'], reply_markup=keyboard)
+#             await state.set_state(RegistrationStates.waiting_phone)
+#     else:
+#         await callback.answer("❌ Siz hali kanalga obuna bo'lmadingiz!", show_alert=True)
+
 @router.callback_query(F.data == "check_subscription")
 async def check_subscription_callback(callback: CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
-    
-    if await check_subscription(bot, user_id, Config.MANDATORY_CHANNEL):
+
+    user = await db.get_user(user_id)
+    if user:
         await callback.message.delete()
-        user = await db.get_user(user_id)
-        if user:
-            await callback.message.answer(MESSAGES['registration_complete'], reply_markup=get_courses_keyboard())
-            await state.set_state(PaymentStates.course_selection)
-        else:
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text="📱 Telefon raqamni ulashish", request_contact=True)]],
-                resize_keyboard=True,
-                one_time_keyboard=True
-            )
-            await callback.message.answer(MESSAGES['welcome'], reply_markup=keyboard)
-            await state.set_state(RegistrationStates.waiting_phone)
+        await callback.message.answer(
+            MESSAGES['registration_complete'],
+            reply_markup=get_courses_keyboard()
+        )
+        await state.set_state(PaymentStates.course_selection)
     else:
-        await callback.answer("❌ Siz hali kanalga obuna bo'lmadingiz!", show_alert=True)
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text="📱 Telefon raqamni ulashish", request_contact=True)]],
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
+        await callback.message.delete()
+        await callback.message.answer(MESSAGES['welcome'], reply_markup=keyboard)
+        await state.set_state(RegistrationStates.waiting_phone)
 
 @router.message(RegistrationStates.waiting_phone, F.contact)
 async def phone_handler(message: Message, state: FSMContext):
