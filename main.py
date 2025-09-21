@@ -105,13 +105,13 @@ COURSES = {
         'name': '💎 Premium',
         'price': 597000,
         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi',
-        'channel_id': -1005555666677
+        'channel_id': -4881058591
     },
     'vip': {
         'name': '👑 VIP',
         'price': 1497000,
         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi\n✅ Umida Usmanovadan oflayn konsultatsiya\n✅ Umida Usmanovadan sport mashg\'uloti\n✅ Shaxsiy rejim',
-        'channel_id': -1008888999900
+        'channel_id': -4873128313
     }
 }
 
