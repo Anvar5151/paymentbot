@@ -412,7 +412,7 @@ def get_courses_keyboard():
 
 def get_payment_keyboard(course_key: str):
     builder = InlineKeyboardBuilder()
-    builder.button(text="📋 Karta raqamini nusxalash", callback_data=f"copy_card:{course_key}")
+    # builder.button(text="📋 Karta raqamini nusxalash", callback_data=f"copy_card:{course_key}")
     builder.button(text="📸 Chekni yuborish", callback_data=f"send_receipt:{course_key}")
     builder.adjust(1)
     return builder.as_markup()
