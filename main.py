@@ -74,7 +74,7 @@ class AdminStates(StatesGroup):
 # # Course configurations
 # COURSES = {
 #     'mustaqil': {
-#         'name': '🌟 Mustaqil',
+#         'name': '🌟 Standart',
 #         'price': 297000,
 #         'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
 #         'channel_id': 'https://t.me/+Vyu76TM7HC4xODEy'
@@ -96,20 +96,20 @@ class AdminStates(StatesGroup):
 # Course configurations
 COURSES = {
     'mustaqil': {
-        'name': '🌟 Mustaqil - Super chegirma',
+        'name': '🌟 Standart - Super chegirma',
         'price': 97000,
         'description': '✅ 21 kunlik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
         'channel_id': -1003007239414  # faqat raqamli ID
     },
     'premium': {
         'name': '💎 Premium',
-        'price': 597000,
+        'price': 297000,
         'description': '✅ 21 kunlik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi',
         'channel_id': -4881058591
     },
     'vip': {
         'name': '👑 VIP',
-        'price': 1497000,
+        'price': 997000,
         'description': '✅ 21 kunlik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi\n✅ Umida Usmanovadan oflayn konsultatsiya\n✅ Umida Usmanovadan sport mashg\'uloti\n✅ Shaxsiy rejim',
         'channel_id': -4873128313
     }
