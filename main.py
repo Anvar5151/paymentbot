@@ -53,8 +53,8 @@ class Config:
     DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://u3iq5cgdg6i8iu:p0a421befaade36b354ef7c54ebd196a264d162be538a3b4f4e8c9d2ce3264ef4@c2fbt7u7f4htth.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d50dkobgsj63t1')
     ADMIN_IDS = list(map(int, os.getenv('ADMIN_IDS', '385129620, 6431139056').split(',')))
     MANDATORY_CHANNEL = os.getenv('MANDATORY_CHANNEL', '')
-    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '5614 6873 0354 0661')
-    CARD_OWNER = os.getenv('CARD_OWNER', 'Anvar Raxmadullayev')
+    PAYMENT_CARD = os.getenv('PAYMENT_CARD', '5614 6818 1668 2078')
+    CARD_OWNER = os.getenv('CARD_OWNER', 'Umida Usmonova')
 
 # States
 class RegistrationStates(StatesGroup):
@@ -96,21 +96,21 @@ class AdminStates(StatesGroup):
 # Course configurations
 COURSES = {
     'mustaqil': {
-        'name': '🌟 Mustaqil',
-        'price': 297000,
-        'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
+        'name': '🌟 Mustaqil - Super chegirma',
+        'price': 97000,
+        'description': '✅ 21 kunlik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari',
         'channel_id': -1003007239414  # faqat raqamli ID
     },
     'premium': {
         'name': '💎 Premium',
         'price': 597000,
-        'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi',
+        'description': '✅ 21 kunlik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi',
         'channel_id': -4881058591
     },
     'vip': {
         'name': '👑 VIP',
         'price': 1497000,
-        'description': '✅ 5 haftalik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi\n✅ Umida Usmanovadan oflayn konsultatsiya\n✅ Umida Usmanovadan sport mashg\'uloti\n✅ Shaxsiy rejim',
+        'description': '✅ 21 kunlik dastur\n✅ 21 ta video darslar\n✅ Kunlik vazifalar\n✅ Menyu va retseptlar\n✅ Sport mashqlari\n✅ Kurator nazorati\n✅ Haftada 1 marta Umida Usmanovadan jonli efir\n✅ Viseral massaj darsligi\n✅ Zuluk qo\'yish darsligi\n✅ Umida Usmanovadan oflayn konsultatsiya\n✅ Umida Usmanovadan sport mashg\'uloti\n✅ Shaxsiy rejim',
         'channel_id': -4873128313
     }
 }
